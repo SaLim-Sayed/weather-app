@@ -16,26 +16,16 @@
     "declaration": true,
     "outDir": "./dist",
     "rootDir": "./src",
-    "jsx": "react-jsx",
-    "baseUrl": ".",
-    "paths": {
-      "@weather-app/core": ["../core/src"],
-      "@weather-app/core/*": ["../core/src/*"]
-    }
+    "jsx": "react-jsx"
   },
   "include": [
-    "src/**/*",
-    "../core/src/**/*"
+    "src/**/*"
   ],
+  "composite": true,
   "exclude": [
     "node_modules",
     "dist",
     "**/*.test.ts",
     "**/*.test.tsx"
-  ],
-   "references": [
-    {
-      "path": "../core"
-    }
   ]
 }
