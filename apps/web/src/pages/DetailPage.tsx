@@ -1,7 +1,7 @@
 import { useParams } from "react-router-dom";
-import { useWeatherAxios } from "../../../../packages/core/src/api/weather";
-import midRain from "../assets/mid-rain.png";
+import { ModerateRain } from "@repo/assets";
 import { WeatherCard } from "./WeatherCard";
+import { useWeatherAxios } from "@weather-app/core/src/api/weather";
 export default function DetailPage() {
     const { city = "London" } = useParams();
     const { data, loading, error } = useWeatherAxios(city);
@@ -14,25 +14,25 @@ export default function DetailPage() {
 
     const cards = [
         {
-          title: "Humidity",
-          value: `${data.main?.humidity}%`,
-          icon: midRain,
+            title: "Humidity",
+            value: `${data.main?.humidity}%`,
+            icon: ModerateRain,
         },
         {
-          title: "Wind",
-          value: `${data.wind?.speed} m/s`,
-          icon: midRain,
+            title: "Wind",
+            value: `${data.wind?.speed} m/s`,
+            icon: ModerateRain,
         },
         {
-          title: "Clouds",
-          value: `${data.clouds?.all}%`,
-          icon: midRain,
+            title: "Clouds",
+            value: `${data.clouds?.all}%`,
+            icon: ModerateRain,
         },
-      ];
+    ];
 
     return (
         <div
-            className="relative w-full mx-auto mt-10 rounded-3xl p-6 flex flex-col items-center text-white shadow-xl"
+            className="relative w-full mx-auto mt-10 rounded-3xl p-6 flex flex-col items-center text-white"
 
         >
             {/* Temperature & City */}
@@ -49,7 +49,7 @@ export default function DetailPage() {
                         {data.name}, {data.sys?.country}
                     </div>
                 </div>
-              
+
             </div>
 
             {/* Description */}
@@ -58,15 +58,15 @@ export default function DetailPage() {
             </p>
 
             <div className="flex gap-4 mt-6 justify-center w-full flex-wrap">
-        {cards.map((card) => (
-          <WeatherCard
-            key={card.title}
-            title={card.title}
-            value={card.value}
-            icon={card.icon}
-          />
-        ))}
-      </div>
+                {cards.map((card) => (
+                    <WeatherCard
+                        key={card.title}
+                        title={card.title}
+                        value={card.value}
+                        icon={card.icon}
+                    />
+                ))}
+            </div>
         </div>
     );
 }

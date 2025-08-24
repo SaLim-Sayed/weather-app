@@ -3,6 +3,9 @@
   "compilerOptions": {
     "outDir": "dist"
   },
+  "paths": {
+    "@weather-app/core*": ["./*"]
+  },
   "include": ["src", "../core/src/index.ts"],
   "exclude": ["dist", "build", "node_modules"]
 }
