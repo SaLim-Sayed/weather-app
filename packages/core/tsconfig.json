@@ -1,31 +1,8 @@
 {
+  "extends": "@repo/typescript-config/react-library.json",
   "compilerOptions": {
-    "target": "ES2020",
-    "lib": ["ES2020", "DOM", "DOM.Iterable"],
-    "allowJs": true,
-    "skipLibCheck": true,
-    "esModuleInterop": true,
-    "allowSyntheticDefaultImports": true,
-    "strict": true,
-    "forceConsistentCasingInFileNames": true,
-    "module": "ESNext",
-    "moduleResolution": "node",
-    "resolveJsonModule": true,
-    "isolatedModules": true,
-    "noEmit": false,
-    "declaration": true,
-    "outDir": "./dist",
-    "rootDir": "./src",
-    "jsx": "react-jsx"
+    "outDir": "dist"
   },
-  "include": [
-    "src/**/*"
-  ],
-  "composite": true,
-  "exclude": [
-    "node_modules",
-    "dist",
-    "**/*.test.ts",
-    "**/*.test.tsx"
-  ]
+  "include": ["src", "../core/src/index.ts"],
+  "exclude": ["dist", "build", "node_modules"]
 }

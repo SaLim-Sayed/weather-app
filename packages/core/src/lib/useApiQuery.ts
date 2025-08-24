@@ -1,6 +1,6 @@
 import { useQuery, UseQueryOptions } from '@tanstack/react-query';
 import axios from 'axios';
-import { API_URL } from '../lib/api';
+import { API_URL } from './api';
  
 type ApiQueryProps<TResponse> = {
   key: unknown[];

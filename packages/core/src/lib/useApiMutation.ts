@@ -1,7 +1,8 @@
 import { useMutation, useQueryClient, UseMutationOptions } from '@tanstack/react-query';
 import axios, { AxiosError } from 'axios'; // import AxiosError for typing
-import { API_URL } from '../lib/api';
+import { API_URL } from './api';
  
+
 type HttpMethod = 'post' | 'put' | 'delete';
 
 type ApiMutationProps<TInput, TResponse> = {
@@ -19,7 +20,7 @@ export function useApiMutation<TInput = any, TResponse = any>({
   isFormData = false,
   refetchKeys = [],
 }: ApiMutationProps<TInput, TResponse>) {
- 
+  
   const queryClient = useQueryClient();
 
   return useMutation<TResponse, AxiosError<any>, TInput>({
@@ -32,7 +33,8 @@ export function useApiMutation<TInput = any, TResponse = any>({
         headers['Content-Type'] = 'application/json';
       }
 
- 
+   
+
       const axiosConfig = { headers };
       const fullUrl = `${API_URL}${url}`;
       let response;
