@@ -1,25 +1,23 @@
-import React from 'react'
- // eslint-disable-next-line import/no-unresolved
-import { ScreenContent } from 'components/ScreenContent';
-import { StatusBar } from 'expo-status-bar';
+// eslint-disable-next-line import/no-unresolved
+import { NavigationContainer } from "@react-navigation/native";
+import { createNativeStackNavigator } from "@react-navigation/native-stack";
+import DetailPage from "components/DetailPage";
+import SearchPage from "components/SearchPage";
+import { ImageBackground } from "react-native";
+ 
 
-
-
-
-import './global.css';
-
-
-import { ImageBackground } from 'react-native';
-
+const Stack = createNativeStackNavigator();
 
 export default function App() {
   return (
-       <ImageBackground source={require("@repo/assets/images/main-bg.png")} className="flex-1 items-center justify-center">
-        <ScreenContent title="Home" path="App.tsx">
-        </ScreenContent>
-        <StatusBar style="auto" />
-      </ImageBackground>
+    
+    <NavigationContainer>
+      <Stack.Navigator initialRouteName="SearchPage">
+
+        <Stack.Screen name="SearchPage" component={SearchPage} />
+        <Stack.Screen name="DetailPage" component={DetailPage} />
+ 
+      </Stack.Navigator>
+    </NavigationContainer>
   );
 }
-
-
