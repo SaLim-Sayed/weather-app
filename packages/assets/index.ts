@@ -14,6 +14,13 @@ import PartlyCloudy from "./images/partlycloudy.png";
 import Sun from "./images/sun.png";
 import Rectangle from "./images/Rectangle.png";
 import MainBg from "./images/background.png";
+import Wind from "./images/wind.png";
+import Drop from "./images/drop.png";
+import Suns from "./images/suns.png";
+
+
+
+
 
 
 
