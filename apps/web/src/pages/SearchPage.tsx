@@ -1,71 +1,70 @@
-import { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Input } from "../components/ui/input";
-import { Button } from "../components/ui/button";
+
+const API_KEY = "5796abbde9106b7da4febfae8c44c232";
 
 export default function SearchPage() {
   const [query, setQuery] = useState("");
-  const [results, setResults] = useState<any[]>([]);
+  const [location, setLocation] = useState<any[]>([]);
   const navigate = useNavigate();
 
-  const searchCities = async (value: string) => {
-    setQuery(value);
-
-    if (value.length < 2) {
-      setResults([]);
+  useEffect(() => {
+    if (query.length < 2) {
+      setLocation([]);
       return;
     }
 
-    try {
-      const res = await fetch(
-        `https://samples.openweathermap.org/data/2.5/direct?q=${value}&limit=5&appid=b6907d289e10d714a6e88b30761fae22`
-      );
-      const data = await res.json();
-      setResults(data);
-    } catch (err) {
-      console.error("Error fetching cities", err);
-    }
-  };
+    const fetchCities = async () => {
+      try {
+        const res = await fetch(
+          `https://api.openweathermap.org/data/2.5/find?q=${query}&appid=${API_KEY}&units=metric`
+        );
+        const data = await res.json();
+        if (data?.list) {
+          setLocation(data.list);
+        } else {
+          setLocation([]);
+        }
+      } catch (error) {
+        console.error("Error fetching cities:", error);
+      }
+    };
 
-  const handleSelect = (city: any) => {
-    const cityName = city.name;
-    const country = city.country;
-    navigate(`/details/${cityName},${country}`);
-  };
+    const handler = setTimeout(() => {
+      fetchCities();
+    }, 500);
+
+    return () => clearTimeout(handler);
+  }, [query]);
 
   return (
-    <div className="flex flex-col items-center justify-center h-screen space-y-4">
-      <h1 className="text-3xl font-bold">Weather Search</h1>
+    <div className="flex flex-col items-center justify-center h-screen space-y-6">
+      <h1 className="text-3xl font-bold text-blue-800">Weather Search</h1>
+      <input
+        type="text"
+        value={query}
+        placeholder="Search city"
+        onChange={(e) => setQuery(e.target.value)}
+        className="px-4 py-2 border rounded-lg w-72"
+      />
 
-      <div className="relative w-64">
-        <Input
-          placeholder="Enter city"
-          value={query}
-          onChange={(e) => searchCities(e.target.value)}
-        />
-
-        {results.length > 0 && (
-          <ul className="absolute bg-white border rounded-md mt-1 w-full max-h-48 overflow-y-auto shadow-lg z-10">
-            {results.map((city, idx) => (
-              <li
-                key={idx}
-                onClick={() => handleSelect(city)}
-                className="px-3 py-2 cursor-pointer hover:bg-gray-100"
-              >
-                {city.name}, {city.state ? city.state + ", " : ""}
-                {city.country}
-              </li>
-            ))}
-          </ul>
-        )}
-      </div>
-
-      <Button
-        onClick={() => navigate(`/details/${query || "Montreal"}`)}
-        className="w-64"
-      >
-        See Weather
-      </Button>
+      {location.length > 0 && (
+        <div className="w-72 bg-gray-100 rounded-lg shadow-md divide-y">
+          {location.map((item) => (
+            <button
+              key={item.id}
+              onClick={() =>
+                navigate(
+                  `/details/${item.name}?lat=${item.coord.lat}&lon=${item.coord.lon}&country=${item.sys?.country}`
+                )
+              }
+              className="block w-full text-left px-4 py-2 hover:bg-gray-200"
+            >
+              {item.name}, {item.sys?.country}
+            </button>
+          ))}
+        </div>
+      )}
     </div>
   );
 }

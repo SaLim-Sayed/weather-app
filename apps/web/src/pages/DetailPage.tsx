@@ -1,72 +1,91 @@
-import { useParams } from "react-router-dom";
-import { ModerateRain } from "@repo/assets";
-import { WeatherCard } from "./WeatherCard";
-import { useWeatherAxios } from "@weather-app/core/src/api/weather";
+import React, { useEffect, useState } from "react";
+import { useParams, useLocation } from "react-router-dom";
+
+const API_KEY = "5796abbde9106b7da4febfae8c44c232";
+
 export default function DetailPage() {
-    const { city = "London" } = useParams();
-    const { data, loading, error } = useWeatherAxios(city);
+  const { city } = useParams();
+  const location = useLocation();
+  const queryParams = new URLSearchParams(location.search);
 
-    if (loading) return <p className="text-center mt-10">Loading...</p>;
-    if (error) return <p className="text-red-500 text-center">{String(error)}</p>;
-    if (!data) return <p className="text-center mt-10">No data available</p>;
+  const lat = queryParams.get("lat");
+  const lon = queryParams.get("lon");
+  const country = queryParams.get("country");
 
-    const toCelsius = (k: number) => Math.round(k - 273.15);
+  const [weather, setWeather] = useState<any>(null);
+  const [daily, setDaily] = useState<any[]>([]);
 
-    const cards = [
-        {
-            title: "Humidity",
-            value: `${data.main?.humidity}%`,
-            icon: ModerateRain,
-        },
-        {
-            title: "Wind",
-            value: `${data.wind?.speed} m/s`,
-            icon: ModerateRain,
-        },
-        {
-            title: "Clouds",
-            value: `${data.clouds?.all}%`,
-            icon: ModerateRain,
-        },
-    ];
+  useEffect(() => {
+    if (!lat || !lon) return;
 
+    const fetchWeather = async () => {
+      try {
+        const res = await fetch(
+          `https://api.openweathermap.org/data/2.5/onecall?lat=${lat}&lon=${lon}&units=metric&appid=${API_KEY}`
+        );
+        const data = await res.json();
+        setWeather({ ...data.current, name: city, sys: { country } });
+        setDaily(data.daily.slice(0, 7));
+      } catch (error) {
+        console.error("Error fetching weather:", error);
+      }
+    };
+
+    fetchWeather();
+  }, [lat, lon, city, country]);
+
+  if (!weather) {
     return (
-        <div
-            className="relative w-full mx-auto mt-10 rounded-3xl p-6 flex flex-col items-center text-white"
-
-        >
-            {/* Temperature & City */}
-            <div className="flex justify-between items-start">
-                <div>
-                    <div className="text-6xl font-bold">
-                        {toCelsius(data.main?.temp ?? 0)}°
-                    </div>
-                    <div className="text-lg">
-                        H:{toCelsius(data.main?.temp_max ?? 0)}° | L:
-                        {toCelsius(data.main?.temp_min ?? 0)}°
-                    </div>
-                    <div className="mt-1 text-xl font-medium">
-                        {data.name}, {data.sys?.country}
-                    </div>
-                </div>
-
-            </div>
-
-            {/* Description */}
-            <p className="mt-2 text-right text-md capitalize">
-                {data.weather?.[0]?.description}
-            </p>
-
-            <div className="flex gap-4 mt-6 justify-center w-full flex-wrap">
-                {cards.map((card) => (
-                    <WeatherCard
-                        key={card.title}
-                        title={card.title}
-                        value={card.value}
-                        icon={card.icon}
-                    />
-                ))}
-            </div>
-        </div>
+      <div className="flex items-center justify-center h-screen">
+        <p className="text-lg text-gray-700">Loading weather data...</p>
+      </div>
     );
+  }
+
+  return (
+    <div className="p-6 max-w-2xl mx-auto">
+      <h2 className="text-3xl font-bold mb-4 text-blue-700">
+        {weather.name}, {weather.sys?.country}
+      </h2>
+
+      <div className="flex flex-col items-center space-y-4">
+        <img
+          src={`https://openweathermap.org/img/wn/${weather.weather?.[0]?.icon}@4x.png`}
+          alt={weather.weather?.[0]?.description || "Weather icon"}
+          className="w-32 h-32"
+        />
+        <p className="text-5xl font-bold">{Math.round(weather.temp)}°C</p>
+        <p className="capitalize">{weather.weather?.[0]?.description}</p>
+      </div>
+
+      {/* Forecast */}
+      {daily.length > 0 && (
+        <div className="mt-8">
+          <h3 className="text-xl font-bold mb-4">Daily Forecast</h3>
+          <div className="flex gap-4 overflow-x-auto">
+            {daily.map((item, index) => (
+              <div
+                key={index}
+                className="p-4 bg-blue-100 rounded-lg text-center min-w-[100px]"
+              >
+                <p className="font-semibold">
+                  {new Date(item.dt * 1000).toLocaleDateString("en-US", {
+                    weekday: "short",
+                  })}
+                </p>
+                <img
+                  src={`https://openweathermap.org/img/wn/${item.weather[0].icon}@2x.png`}
+                  alt={item.weather[0].description}
+                  className="w-12 h-12 mx-auto"
+                />
+                <p className="font-bold">
+                  {Math.round(item.temp.max)}° / {Math.round(item.temp.min)}°
+                </p>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+    </div>
+  );
 }
