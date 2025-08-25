@@ -1,140 +1,233 @@
-import React, { useState } from "react";
-import {
-  View,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  FlatList,
-  StyleSheet,
-  ImageBackground,
-} from "react-native";
-import { useNavigation } from "@react-navigation/native";
+import { FlatList, Image, StatusBar, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import { MagnifyingGlassIcon, MapPinIcon } from "react-native-heroicons/outline";
+import { useEffect, useState } from 'react';
+import * as Location from "expo-location"; 
+import { useWeatherStore } from "@weather-app/core/src/stores/useWeatherStore";
 
-export default function SearchPage() {
-  const [query, setQuery] = useState("cairo");
-  const [results, setResults] = useState<any[]>([]);
-  const navigation = useNavigation<any>();
+const API_KEY = "5796abbde9106b7da4febfae8c44c232";
 
-  const searchCities = async (value: string) => {
-    setQuery(value);
+type City = {
+  id: number;
+  name: string;
+  sys?: { country?: string };
+  coord: { lat: number; lon: number };
+  main?: { temp: number };
+  weather?: { icon: string; description: string }[];
+};
 
-    if (value.length < 2) {
-      setResults([]);
+type SearchPageProps = {
+  onCitySelect: (city: City) => void;
+};
+
+export default function SearchPage({ onCitySelect }: SearchPageProps) {
+  const [showSearch, setShowSearch] = useState(false);
+  const [query, setQuery] = useState("");
+  const [cities, setCities] = useState<City[]>([]);
+  const [loading, setLoading] = useState(false);
+
+  const setLatestSearch = useWeatherStore((state) => state.setLatestSearch);
+   const latestSearch = useWeatherStore((state) => state.latestSearch);
+  
+ 
+  useEffect(() => {
+    if (query.length < 2) {
+      setCities([]);
       return;
     }
 
+    const fetchCities = async () => {
+      setLoading(true);
+      try {
+        const res = await fetch(
+          `https://api.openweathermap.org/data/2.5/find?q=${query}&appid=${API_KEY}&units=metric`
+        );
+        const data = await res.json();
+        if (data?.list) {
+          setCities(data.list);
+        } else {
+          setCities([]);
+        }
+      } catch (error) {
+        console.log("Error fetching cities:", error);
+        setCities([]);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    const debounceTimer = setTimeout(fetchCities, 300);
+    return () => clearTimeout(debounceTimer);
+  }, [query]);
+
+  const handleCitySelect = (city: City) => {
+    onCitySelect(city);
+    setLatestSearch(city); 
+    setShowSearch(false);
+    setQuery("");
+    setCities([]);
+  };
+
+  const handleCurrentLocation = async () => {
     try {
+      let { status } = await Location.requestForegroundPermissionsAsync();
+      if (status !== "granted") {
+        alert("Permission to access location was denied");
+        return;
+      }
+
+      const loc = await Location.getCurrentPositionAsync({});
+      const { latitude, longitude } = loc.coords;
+
       const res = await fetch(
-        `https://samples.openweathermap.org/data/2.5/direct?q=${value}&limit=5&appid=b6907d289e10d714a6e88b30761fae22`
+        `https://api.openweathermap.org/data/2.5/weather?lat=${latitude}&lon=${longitude}&appid=${API_KEY}&units=metric`
       );
       const data = await res.json();
-      setResults(data);
+
+      if (data) {
+        const city: City = {
+          id: data.id,
+          name: data.name,
+          sys: { country: data.sys?.country },
+          coord: { lat: data.coord.lat, lon: data.coord.lon },
+          main: data.main,
+          weather: data.weather,
+        };
+        handleCitySelect(city);
+      }
     } catch (err) {
-      console.error("Error fetching cities", err);
+      console.log("Error getting location:", err);
     }
   };
 
-  const handleSelect = (city: any) => {
-    const cityName = city.name;
-    const country = city.country;
-    navigation.navigate("DetailPage", { city: `${cityName},${country}` });
-  };
-  console.log(results);
+  const CityCard = ({ city }: { city: City }) => (
+    <TouchableOpacity
+      onPress={() => handleCitySelect(city)}
+      className="bg-white/10 backdrop-blur-sm rounded-2xl p-4 mb-3 border border-white/20"
+    >
+      <View className="flex-row items-center justify-between">
+        <View className="flex-row items-center gap-3 flex-1">
+          <MapPinIcon size={24} color="white" />
+          <View className="flex-1">
+            <Text className="text-white text-lg font-bold">{city.name}</Text>
+            <Text className="text-gray-300 text-sm">{city.sys?.country}</Text>
+          </View>
+        </View>
+
+        {city.main?.temp && (
+          <View className="flex-row items-center gap-2">
+            {city.weather?.[0]?.icon && (
+              <Image
+                source={{
+                  uri: `https://openweathermap.org/img/wn/${city.weather[0].icon}@2x.png`,
+                }}
+                className="w-12 h-12"
+              />
+            )}
+            <Text className="text-white text-xl font-bold">
+              {Math.round(city.main.temp)}°C
+            </Text>
+          </View>
+        )}
+      </View>
+
+      {city.weather?.[0]?.description && (
+        <Text className="text-gray-300 text-sm mt-2 ml-9 capitalize">
+          {city.weather[0].description}
+        </Text>
+      )}
+    </TouchableOpacity>
+  );
 
   return (
-    <ImageBackground
-      source={require("@repo/assets/images/background.png")}
-      style={styles.bg}
-      resizeMode="cover"
-    >
-      <View style={styles.container}>
-        <Text style={styles.title}>Weather Search</Text>
+    <View className="flex-1 relative">
+      <StatusBar barStyle="light-content" />
+      <Image
+        blurRadius={1}
+        source={require("@repo/assets/images/background.png")}
+        className="w-full h-full absolute flex-1 z-0"
+      />
+      <SafeAreaView className="flex-1 z-10">
+        {/* Header */}
+        <View className="mx-4 mt-4 mb-6">
+          <Text className="text-white text-3xl font-bold text-center">
+            Weather Search
+          </Text>
+          <Text className="text-gray-300 text-center mt-2">
+            Search for cities to view weather
+          </Text>
+        </View>
 
-        <TextInput
-          style={styles.input}
-          placeholder="Enter city"
-          value={query}
-          onChangeText={(text) => searchCities(text)}
-        />
+        {/* Search Bar */}
+        <View className="mx-4 relative mb-6 flex-row gap-4 items-center space-x-2">
+          <View
+            style={{
+              borderRadius: 50,
+              borderWidth: showSearch ? 1 : 0,
+              borderColor: showSearch ? "white" : "transparent",
+            }}
+            className="flex-row items-center flex-1 border-white rounded-full bg-white/10 backdrop-blur-sm"
+          >
+            <TextInput
+              value={query}
+              onChangeText={setQuery}
+              placeholderTextColor="lightgray"
+              placeholder="Search cities..."
+              className="text-white pl-6 h-12 flex-1 text-base"
+              autoFocus
+            />
 
-        {results.length > 0 && (
-          <FlatList
-            data={results}
-            keyExtractor={(item, idx) => idx.toString()}
-            style={styles.list}
-            renderItem={({ item }) => (
-              <TouchableOpacity
-                onPress={() => handleSelect(item)}
-                style={styles.listItem}
-              >
-                <Text>
-                  {item.name}, {item.state ? item.state + ", " : ""}
-                  {item.country}
-                </Text>
-              </TouchableOpacity>
-            )}
-          />
+            <TouchableOpacity
+              onPress={() => setShowSearch(!showSearch)}
+              className="h-14 w-14 rounded-full items-center justify-center bg-cyan-500/30"
+            >
+              <MagnifyingGlassIcon size={24} color="white" />
+            </TouchableOpacity>
+          </View>
+
+          {/* Location Button */}
+          <TouchableOpacity
+            onPress={handleCurrentLocation}
+            className="h-14 w-14 rounded-full items-center justify-center bg-green-500/30"
+          >
+            <MapPinIcon size={24} color="white" />
+          </TouchableOpacity>
+        </View>
+
+        {/* Results */}
+        <View className="flex-1 mx-4">
+          {loading && (
+            <View className="items-center py-8">
+              <Text className="text-white text-lg">Searching...</Text>
+            </View>
+          )}
+
+          {!loading && query.length >= 2 && cities.length === 0 && (
+            <View className="items-center py-8">
+              <Text className="text-gray-300 text-lg">No cities found</Text>
+              <Text className="text-gray-400 text-sm mt-2">
+                Try a different search term
+              </Text>
+            </View>
+          )}
+
+          {cities.length > 0 && (
+            <FlatList
+              data={cities}
+              keyExtractor={(item) => item.id.toString()}
+              renderItem={({ item }) => <CityCard city={item} />}
+              showsVerticalScrollIndicator={false}
+              contentContainerStyle={{ paddingBottom: 20 }}
+            />
+          )}  {latestSearch && (
+          <View className="mx-4 mb-4">
+            <Text className="text-gray-300 mb-2">Last searched:</Text>
+            <CityCard city={latestSearch} />
+          </View>
         )}
-
-        <TouchableOpacity
-          style={styles.button}
-          onPress={() =>
-            navigation.navigate("DetailPage", { city: query || "Montreal" })
-          }
-        >
-          <Text style={styles.buttonText}>See Weather</Text>
-        </TouchableOpacity>
-      </View>
-    </ImageBackground>
+        </View>
+      
+      </SafeAreaView>
+    </View>
   );
 }
-
-const styles = StyleSheet.create({
-  bg: {
-    flex: 1, // full screen background
-    width: "100%",
-    height: "100%",
-  },
-  container: {
-    flex: 1,
-    alignItems: "center",
-    justifyContent: "center",
-    padding: 20,
-   },
-  title: {
-    fontSize: 26,
-    fontWeight: "bold",
-    marginBottom: 20,
-  },
-  input: {
-    borderWidth: 1,
-    borderColor: "#ccc",
-    padding: 10,
-    borderRadius: 8,
-    width: "100%",
-    marginBottom: 10,
-    backgroundColor: "white",
-  },
-  list: {
-    width: "100%",
-    maxHeight: 200,
-    marginBottom: 10,
-  },
-  listItem: {
-    padding: 12,
-    borderBottomWidth: 1,
-    borderBottomColor: "#eee",
-   },
-  button: {
-    backgroundColor: "#2563eb",
-    padding: 14,
-    borderRadius: 8,
-    width: "100%",
-    alignItems: "center",
-  },
-  buttonText: {
-    color: "white",
-    fontWeight: "bold",
-    fontSize: 16,
-  },
-});

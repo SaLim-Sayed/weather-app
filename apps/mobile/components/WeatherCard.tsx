@@ -5,7 +5,7 @@ import { Rectangle } from "@repo/assets";
 type WeatherCardProps = {
   title: string;
   value: string | number;
-  icon: any; // require/import
+  icon: any; 
 };
 
 export function WeatherCard({ title, value, icon }: WeatherCardProps) {

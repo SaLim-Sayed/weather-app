@@ -7,8 +7,7 @@ export * from './types/weather.types';
 export * from './services/weatherApi';
 
 // Stores
-export * from './stores/weatherStore';
-export * from './stores/weatherStore';
+  export * from './stores/useWeatherStore';
 
 // Hooks
 export * from './hooks/useWeather';

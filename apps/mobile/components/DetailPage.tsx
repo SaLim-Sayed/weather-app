@@ -1,104 +1,247 @@
-import React from "react";
-import { View, Text, StyleSheet, ScrollView } from "react-native";
-import { useRoute } from "@react-navigation/native";
-// eslint-disable-next-line import/no-unresolved
- import { ModerateRain } from "@repo/assets";
-import { WeatherCard } from "./WeatherCard";
-import { useWeatherAxios } from "@weather-app/core/src/api/weather";   
-export default function DetailPage() {
-  const route = useRoute<any>();
-  const city = route.params?.city || "London";
-  const { data, loading, error } = useWeatherAxios(city);
+import { FlatList, Image, ScrollView, StatusBar, Text, TouchableOpacity, View } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import { CalendarDaysIcon, ArrowLeftIcon } from "react-native-heroicons/outline";
+import { useEffect, useState } from 'react';
 
-  if (loading) return <Text style={styles.center}>Loading...</Text>;
-  if (error) return <Text style={[styles.center, { color: "red" }]}>{String(error)}</Text>;
-  if (!data) return <Text style={styles.center}>No data available</Text>;
+const API_KEY = "5796abbde9106b7da4febfae8c44c232";
 
-  const toCelsius = (k: number) => Math.round(k - 273.15);
+type City = {
+  id: number;
+  name: string;
+  sys?: { country?: string };
+  coord: { lat: number; lon: number };
+};
 
-  const cards = [
-    {
-      title: "Humidity",
-      value: `${data.main?.humidity}%`,
-      icon: ModerateRain,
-    },
-    {
-      title: "Wind",
-      value: `${data.wind?.speed} m/s`,
-      icon: ModerateRain,
-    },
-    {
-      title: "Clouds",
-      value: `${data.clouds?.all}%`,
-      icon: ModerateRain,
-    },
-  ];
+type WeatherDetailsPageProps = {
+  city: City;
+  onBack: () => void;
+};
+
+export default function WeatherDetailsPage({ city, onBack }: WeatherDetailsPageProps) {
+  const [weather, setWeather] = useState<any>(null);
+  const [daily, setDaily] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetchWeatherDetails();
+  }, [city]);
+
+  const fetchWeatherDetails = async () => {
+    setLoading(true);
+    try {
+      const res = await fetch(
+        `https://api.openweathermap.org/data/2.5/onecall?lat=${city.coord.lat}&lon=${city.coord.lon}&units=metric&appid=${API_KEY}`
+      );
+      const data = await res.json();
+      console.log({ data });
+
+      setWeather({ ...data.current, name: city.name, sys: { country: city.sys?.country } });
+      setDaily(data.daily.slice(0, 7)); // next 7 days
+    } catch (error) {
+      console.log("Error fetching weather details:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const formatDay = (dt: number) =>
+    new Date(dt * 1000).toLocaleDateString("en-US", { weekday: "short" });
+
+  if (loading) {
+    return (
+      <View className="flex-1 relative">
+        <StatusBar barStyle="light-content" />
+        <Image
+          blurRadius={1}
+          source={require("@repo/assets/images/background.png")}
+          className="w-full h-full absolute flex-1 z-0"
+        />
+        <SafeAreaView className="flex-1 z-10 items-center justify-center">
+          <Text className="text-white text-xl">Loading weather data...</Text>
+        </SafeAreaView>
+      </View>
+    );
+  }
 
   return (
-    <ScrollView contentContainerStyle={styles.container}>
-      <View style={styles.header}>
-        <Text style={styles.temp}>{toCelsius(data.main?.temp ?? 0)}°</Text>
-        <Text style={styles.range}>
-          H:{toCelsius(data.main?.temp_max ?? 0)}° | L:{toCelsius(data.main?.temp_min ?? 0)}°
-        </Text>
-        <Text style={styles.city}>
-          {data.name}, {data.sys?.country}
-        </Text>
-      </View>
+    <View className="flex-1 relative">
+      <StatusBar barStyle="light-content" />
+      <Image
+        blurRadius={1}
+        source={require("@repo/assets/images/background.png")}
+        className="w-full h-full absolute flex-1 z-0"
+      />
+      <SafeAreaView className="flex-1 z-10">
+        {/* Header with Back Button */}
+        <View className="flex-row items-center mx-4 mt-4 mb-6">
+          <TouchableOpacity
+            onPress={onBack}
+            className="w-12 h-12 rounded-full bg-white/10 items-center justify-center mr-4"
+          >
+            <ArrowLeftIcon size={24} color="white" />
+          </TouchableOpacity>
+          <Text className="text-white text-xl font-bold">Weather Details</Text>
+        </View>
 
-      <Text style={styles.description}>{data.weather?.[0]?.description}</Text>
+        <ScrollView>
+          {weather ? (
+            <>
+              {/* Current Weather */}
+              <View className="items-center mx-4 mb-8">
+                <Text className="text-white text-center text-4xl font-bold">
+                  {weather.name},{" "}
+                  <Text className="text-lg text-gray-300 font-medium">
+                    {weather.sys?.country}
+                  </Text>
+                </Text>
 
-      <View style={styles.cards}>
-        {cards.map((card) => (
-          <WeatherCard key={card.title} {...card} />
-        ))}
-      </View>
-    </ScrollView>
+                <View className="flex-row items-center justify-center gap-4 my-6">
+                  <Image
+                    source={{ uri: `https://openweathermap.org/img/wn/${weather.weather?.[0]?.icon}@4x.png` }}
+                    className="w-40 h-40"
+                  />
+                </View>
+
+                <View className="flex-col items-center justify-center gap-4">
+                  <Text className="text-white text-center text-6xl font-bold">
+                    {Math.round(weather.temp)}°C
+                  </Text>
+                  <Text className="text-white text-center text-lg tracking-widest capitalize">
+                    {weather.weather?.[0]?.description}
+                  </Text>
+                </View>
+              </View>
+
+              {/* Weather Stats */}
+              <View className="mx-4 mb-6">
+                {/* First row */}
+                <View className="flex-row items-center justify-between mb-4 gap-2">
+                  <View className="flex-1 bg-white/10 rounded-2xl p-4 items-center">
+                    <Text className="text-blue-400 text-2xl mb-2">💨</Text>
+                    <Text className="text-white text-sm font-medium">Wind</Text>
+                    <Text className="text-white text-lg font-bold">
+                      {weather.wind_speed} km/h
+                    </Text>
+                  </View>
+
+                  <View className="flex-1 bg-white/10 rounded-2xl p-4 items-center">
+                    <Text className="text-blue-400 text-2xl mb-2">💧</Text>
+                    <Text className="text-white text-sm font-medium">Humidity</Text>
+                    <Text className="text-white text-lg font-bold">
+                      {weather.humidity}%
+                    </Text>
+                  </View>
+
+                  <View className="flex-1 bg-white/10 rounded-2xl p-4 items-center">
+                    <Text className="text-yellow-400 text-2xl mb-2">🌅</Text>
+                    <Text className="text-white text-sm font-medium">Sunrise</Text>
+                    <Text className="text-white text-lg font-bold">
+                      {new Date(weather.sunrise * 1000).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                    </Text>
+                  </View>
+                </View>
+
+                {/* Second row */}
+                <View className="flex-row items-center justify-between mb-4 gap-2">
+                  <View className="flex-1 bg-white/10 rounded-2xl p-4 items-center">
+                    <Text className="text-orange-400 text-2xl mb-2">🌇</Text>
+                    <Text className="text-white text-sm font-medium">Sunset</Text>
+                    <Text className="text-white text-lg font-bold">
+                      {new Date(weather.sunset * 1000).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                    </Text>
+                  </View>
+
+                  <View className="flex-1 bg-white/10 rounded-2xl p-4 items-center">
+                    <Text className="text-red-400 text-2xl mb-2">🌡️</Text>
+                    <Text className="text-white text-sm font-medium">Feels Like</Text>
+                    <Text className="text-white text-lg font-bold">
+                      {Math.round(weather.feels_like)}°C
+                    </Text>
+                  </View>
+
+                  <View className="flex-1 bg-white/10 rounded-2xl p-4 items-center">
+                    <Text className="text-gray-300 text-2xl mb-2">👁️</Text>
+                    <Text className="text-white text-sm font-medium">Visibility</Text>
+                    <Text className="text-white text-lg font-bold">
+                      {weather.visibility ? (weather.visibility / 1000).toFixed(1) : 'N/A'} km
+                    </Text>
+                  </View>
+                </View>
+
+                {/* Third row */}
+                <View className="flex-row items-center justify-between gap-2">
+                  <View className="flex-1 bg-white/10 rounded-2xl p-4 items-center">
+                    <Text className="text-yellow-300 text-2xl mb-2">☀️</Text>
+                    <Text className="text-white text-sm font-medium">UV Index</Text>
+                    <Text className="text-white text-lg font-bold">
+                      {weather.uvi ? Math.round(weather.uvi) : 'N/A'}
+                    </Text>
+                  </View>
+
+                  <View className="flex-1 bg-white/10 rounded-2xl p-4 items-center">
+                    <Text className="text-purple-300 text-2xl mb-2">🏔️</Text>
+                    <Text className="text-white text-sm font-medium">Pressure</Text>
+                    <Text className="text-white text-lg font-bold">
+                      {weather.pressure} hPa
+                    </Text>
+                  </View>
+
+                  <View className="flex-1 bg-white/10 rounded-2xl p-4 items-center">
+                    <Text className="text-cyan-300 text-2xl mb-2">🧭</Text>
+                    <Text className="text-white text-sm font-medium">Wind Dir</Text>
+                    <Text className="text-white text-lg font-bold">
+                      {weather.wind_deg ? `${weather.wind_deg}°` : 'N/A'}
+                    </Text>
+                  </View>
+                </View>
+              </View>
+
+              {/* 7-Day Forecast */}
+              {daily.length > 0 && (
+                <View className="mx-4 mb-6">
+                  <View className="flex-row items-center gap-4 mb-4">
+                    <CalendarDaysIcon size={20} color="white" />
+                    <Text className="text-white text-xl font-bold">7-Day Forecast</Text>
+                  </View>
+                  <FlatList
+                    data={daily}
+                    horizontal
+                    keyExtractor={(item, index) => index.toString()}
+                    showsHorizontalScrollIndicator={false}
+                    contentContainerStyle={{ gap: 12 }}
+                    renderItem={({ item }) => (
+                      <View className="flex-col w-32 items-center bg-white/10 rounded-2xl p-4">
+                        <Image
+                          source={{ uri: `https://openweathermap.org/img/wn/${item.weather[0].icon}@2x.png` }}
+                          className="w-16 h-16 mb-2"
+                        />
+                        <Text className="text-gray-300 text-base font-bold mb-2">
+                          {formatDay(item.dt)}
+                        </Text>
+                        <Text className="text-white text-lg font-bold">
+                          {Math.round(item.temp.max)}°
+                        </Text>
+                        <Text className="text-gray-300 text-sm">
+                          {Math.round(item.temp.min)}°
+                        </Text>
+                      </View>
+                    )}
+                  />
+                </View>
+              )}
+            </>
+          ) : (
+            <View className="flex-1 items-center justify-center">
+              <Text className="text-white text-xl">Failed to load weather data</Text>
+              <TouchableOpacity
+                onPress={fetchWeatherDetails}
+                className="bg-cyan-500 px-6 py-3 rounded-2xl mt-4"
+              >
+                <Text className="text-white font-bold">Try Again</Text>
+              </TouchableOpacity>
+            </View>
+          )}</ScrollView>
+      </SafeAreaView>
+    </View>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    alignItems: "center",
-    padding: 16,
-    backgroundColor: "#0f172a", // bg-slate-900 style
-    flexGrow: 1,
-  },
-  header: {
-    alignItems: "center",
-    marginTop: 20,
-  },
-  temp: {
-    fontSize: 54,
-    fontWeight: "bold",
-    color: "#fff",
-  },
-  range: {
-    fontSize: 18,
-    color: "#ddd",
-    marginTop: 4,
-  },
-  city: {
-    fontSize: 20,
-    fontWeight: "600",
-    color: "#fff",
-    marginTop: 6,
-  },
-  description: {
-    marginTop: 10,
-    fontSize: 16,
-    textTransform: "capitalize",
-    color: "#ddd",
-  },
-  cards: {
-    flexDirection: "row",
-    flexWrap: "wrap",
-    justifyContent: "center",
-    marginTop: 20,
-  },
-  center: {
-    textAlign: "center",
-    marginTop: 50,
-    fontSize: 18,
-  },
-});
