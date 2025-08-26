@@ -2,8 +2,8 @@
 import './App.css'
  
 import { Routes, Route } from "react-router-dom";
- import DetailPage from "./pages/DetailPage.tsx";
-import SearchPage from "./pages/SearchPage.tsx";
+import SearchPage from "./pages/SearchPage";
+import DetailPage from "./pages/DetailPage";
 
 export default function App() {
   return (

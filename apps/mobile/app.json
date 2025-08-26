@@ -9,15 +9,26 @@
     "experiments": {
       "tsconfigPaths": true
     },
-    "plugins": [],
     "orientation": "portrait",
-    "icon": "./assets/ic_launcher.png",
+    "icon": "./assets/splash.png",
+    "backgroundColor": "#132A52",
     "userInterfaceStyle": "light",
     "splash": {
       "image": "./assets/splash.png",
-      "resizeMode": "contain",
-      "backgroundColor": "#132A52"
+      "resizeMode": "stretch",
+      "backgroundColor": "#132A52",
+      "imageWidth": 1024,
+      "imageHeight": 1024
     },
+    "plugins": [
+       [
+        "expo-splash-screen",
+        {
+          "image": "./assets/splash.png",
+          "backgroundColor": "#132A52"
+        }
+      ]
+     ],
     "assetBundlePatterns": [
       "**/*"
     ],
