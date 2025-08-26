@@ -1,6 +1,6 @@
 import { City } from "./useCitySearch";
-import { useApiQuery } from "../lib/useApiQuery";
-import { API_KEY } from "./useCitySearch";
+import { useApiQuery } from "../api/useApiQuery";
+import { API_KEY } from "../constant/constant";
 
 export function useWeatherDetails(city?: City | null) {
   const { data, isLoading, isFetching, refetch, error } = useApiQuery<{

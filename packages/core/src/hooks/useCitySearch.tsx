@@ -1,9 +1,8 @@
 import { useState } from "react";
 import { useDebounce } from "use-debounce";
-import { useApiQuery } from "../lib/useApiQuery";
+import { useApiQuery } from "../api/useApiQuery";
 import { useWeatherStore } from "../stores/useWeatherStore";
-
-export const API_KEY = "5796abbde9106b7da4febfae8c44c232";
+import { API_KEY } from "../constant/constant";
 
 export type City = {
   id: number;

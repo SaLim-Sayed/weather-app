@@ -1,6 +1,6 @@
 import { useMutation, useQueryClient, UseMutationOptions } from '@tanstack/react-query';
 import axios, { AxiosError } from 'axios'; // import AxiosError for typing
-import { API_URL } from '../lib/api';
+import { API_URL } from '../api/api';
  
 type HttpMethod = 'post' | 'put' | 'delete';
 

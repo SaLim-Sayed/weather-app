@@ -1,46 +1,73 @@
-import { useCitySearch } from "@weather-app/core/src/hooks/useCitySearch";
 import { useNavigate } from "react-router-dom";
-  
+
+import { useCitySearch, type City } from "@weather-app/core/src/hooks/useCitySearch";
+
+import { Button } from "../components/ui/button";
+import { Input } from "../components/ui/input";
+import CityCard from "../shared-ui/WeatherCard";
+
+import { useCurrentLocation, useRecentSearches } from "@weather-app/core";
+import { FiMapPin } from "react-icons/fi";
+
 export default function SearchPage() {
   const navigate = useNavigate();
+
+  const { lastSearchedCity, saveCity, clearLast } = useRecentSearches();
 
   const {
     query,
     setQuery,
     cities,
     isCityLoading,
-    handleCitySelect,
-  } = useCitySearch((city: any) => {
-    navigate(
-      `/details/${city.name}?lat=${city.coord.lat}&lon=${city.coord.lon}&country=${city.sys?.country}`
-    );
+    handleCitySelect: originalHandleCitySelect,
+  } = useCitySearch((city) => {
+    navigate(`/details/${city.name}/${city.coord.lat}/${city.coord.lon}/${city.sys?.country}`);
+  });
+
+  const handleCitySelect = (city: City) => {
+    saveCity(city);
+    originalHandleCitySelect(city);
+  };
+
+  const { requestLocation, isLoading: isLocationLoading } = useCurrentLocation((city) => {
+    navigate(`/details/${city.name}/${city.coord.lat}/${city.coord.lon}/${city.sys?.country}`);
+    handleCitySelect(city);
   });
 
   return (
-    <div className="flex flex-col items-center justify-center h-screen space-y-6">
-      <h1 className="text-3xl font-bold text-gray-100">Weather Search</h1>
+    <div className="flex flex-col items-center text-white py-10 px-4">
+      <h1 className="text-4xl font-bold mb-2">Weather Search</h1>
+      <p className="text-gray-300 mb-6">Search for cities or use your location</p>
+      <div className="flex items-center gap-2">
+        <Input
+          value={query}
+          placeholder="Search cities..."
+          onChange={(e) => setQuery(e.target.value)}
+          className="w-full max-w-md min-w-80  flex-1  "
+        />
 
-      <input
-        type="text"
-        value={query}
-        placeholder="Search city"
-        onChange={(e) => setQuery(e.target.value)}
-        className="px-4 py-2 border rounded-lg w-72"
-      />
-
+        <Button className="p-2 bg-white/10" onClick={requestLocation} disabled={isLocationLoading}>
+          <FiMapPin size={40} />
+        </Button>
+      </div>
       {isCityLoading && <p className="text-gray-300">Loading...</p>}
 
       {cities.length > 0 && (
-        <div className="w-72 bg-gray-100 rounded-lg shadow-md divide-y">
+        <div className="flex flex-wrap gap-6 w-full justify-center items-center max-w-6xl mt-6">
           {cities.map((city) => (
-            <button
-              key={city.id}
-              onClick={() => handleCitySelect(city)}
-              className="block w-full text-left px-4 py-2 hover:bg-gray-200"
-            >
-              {city.name}, {city.sys?.country}
-            </button>
+            <CityCard key={city.id} city={city} onClick={() => handleCitySelect(city)} />
           ))}
+        </div>
+      )}
+
+      {lastSearchedCity && (
+        <div className="mt-10 w-full max-w-xl">
+          <h2 className="text-gray-400 mb-4">Last Searched City</h2>
+          <CityCard
+            city={lastSearchedCity}
+            onClick={() => handleCitySelect(lastSearchedCity)}
+            onDelete={clearLast}
+          />
         </div>
       )}
     </div>

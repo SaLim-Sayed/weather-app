@@ -18,7 +18,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { MobileStorage, useCitySearch } from "@weather-app/core";
-import { useApiQuery } from "@weather-app/core/src/lib/useApiQuery";
+import { useApiQuery } from "@weather-app/core";
   
 const API_KEY = "5796abbde9106b7da4febfae8c44c232";
 
