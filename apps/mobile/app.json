@@ -21,13 +21,6 @@
       "imageHeight": 1024
     },
     "plugins": [
-       [
-        "expo-splash-screen",
-        {
-          "image": "./assets/splash.png",
-          "backgroundColor": "#132A52"
-        }
-      ]
      ],
     "assetBundlePatterns": [
       "**/*"

@@ -8,6 +8,10 @@
     "check-types": "turbo run check-types",
     "format": "prettier --write \"**/*.{ts,tsx,md}\""
   },
+  "dependencies": {
+ "react": "19.0.0",
+    "react-dom": "19.0.0"
+},
   "devDependencies": {
     "prettier": "^3.6.0",
     "prettier-plugin-tailwindcss": "^0.6.11",

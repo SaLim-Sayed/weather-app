@@ -15,9 +15,6 @@
     "dev:components": "tsc --watch",
     "lint": "eslint src --max-warnings 0"
   },
-  "peerDependencies": {
-    "react": "^19"
-  },
   "devDependencies": {
     "@repo/eslint-config": "*",
     "@repo/typescript-config": "*",
@@ -29,6 +26,8 @@
     "@react-native-async-storage/async-storage": "^2.2.0",
     "@tanstack/react-query": "^5.85.5",
     "axios": "^1.11.0",
+    "react": "19.0.0",
+    "react-dom": "19.0.0",
     "zustand": "^5.0.8"
   }
 }
