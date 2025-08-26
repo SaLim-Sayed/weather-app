@@ -9,7 +9,7 @@ import {
   WeatherError,
 } from '../types/weather.types';
 
-const API_KEY = process.env.OPENWEATHER_API_KEY || 'your-api-key-here';
+const API_KEY =  'your-api-key-here';
 const BASE_URL = 'https://api.openweathermap.org';
 
 class WeatherApiService {

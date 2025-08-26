@@ -1,41 +1,21 @@
-import React, { useEffect, useState } from "react";
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-
-const API_KEY = "5796abbde9106b7da4febfae8c44c232";
-
+import { useApiQuery } from "@weather-app/core";
+ 
 export default function SearchPage() {
   const [query, setQuery] = useState("");
-  const [location, setLocation] = useState<any[]>([]);
   const navigate = useNavigate();
 
-  useEffect(() => {
-    if (query.length < 2) {
-      setLocation([]);
-      return;
-    }
-
-    const fetchCities = async () => {
-      try {
-        const res = await fetch(
-          `https://api.openweathermap.org/data/2.5/find?q=${query}&appid=${API_KEY}&units=metric`
-        );
-        const data = await res.json();
-        if (data?.list) {
-          setLocation(data.list);
-        } else {
-          setLocation([]);
-        }
-      } catch (error) {
-        console.error("Error fetching cities:", error);
-      }
-    };
-
-    const handler = setTimeout(() => {
-      fetchCities();
-    }, 500);
-
-    return () => clearTimeout(handler);
-  }, [query]);
+ const {data: location = {list: []}} = useApiQuery<{list: any[]}>({
+    key: ["search-city", query],
+    url:
+      query.length > 2
+        ? `/data/2.5/find?q=${query}&appid=${API_KEY}&units=metric`
+        : null,
+    enabled: query.length > 2,
+   
+  });
+  console.log({location})
 
   return (
     <div className="flex flex-col items-center justify-center h-screen space-y-6">
@@ -48,9 +28,9 @@ export default function SearchPage() {
         className="px-4 py-2 border rounded-lg w-72"
       />
 
-      {location.length > 0 && (
+      {location?.list?.length > 0 && (
         <div className="w-72 bg-gray-100 rounded-lg shadow-md divide-y">
-          {location.map((item) => (
+          {location?.list?.map((item) => (
             <button
               key={item.id}
               onClick={() =>

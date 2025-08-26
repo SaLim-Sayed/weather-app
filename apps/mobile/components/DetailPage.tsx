@@ -1,9 +1,8 @@
+import { useWeatherDetails } from '@weather-app/core';
+import { useEffect } from 'react';
 import { FlatList, Image, ScrollView, StatusBar, Text, TouchableOpacity, View } from 'react-native';
+import { ArrowLeftIcon, CalendarDaysIcon } from "react-native-heroicons/outline";
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { CalendarDaysIcon, ArrowLeftIcon } from "react-native-heroicons/outline";
-import { useEffect, useState } from 'react';
-
-const API_KEY = "5796abbde9106b7da4febfae8c44c232";
 
 type City = {
   id: number;
@@ -18,36 +17,19 @@ type WeatherDetailsPageProps = {
 };
 
 export default function WeatherDetailsPage({ city, onBack }: WeatherDetailsPageProps) {
-  const [weather, setWeather] = useState<any>(null);
-  const [daily, setDaily] = useState<any[]>([]);
-  const [loading, setLoading] = useState(true);
+  const { weather, daily, isLoading, refetch } = useWeatherDetails(city);
 
+ 
   useEffect(() => {
-    fetchWeatherDetails();
+    refetch();
   }, [city]);
 
-  const fetchWeatherDetails = async () => {
-    setLoading(true);
-    try {
-      const res = await fetch(
-        `https://api.openweathermap.org/data/2.5/onecall?lat=${city.coord.lat}&lon=${city.coord.lon}&units=metric&appid=${API_KEY}`
-      );
-      const data = await res.json();
-      console.log({ data });
-
-      setWeather({ ...data.current, name: city.name, sys: { country: city.sys?.country } });
-      setDaily(data.daily.slice(0, 7)); // next 7 days
-    } catch (error) {
-      console.log("Error fetching weather details:", error);
-    } finally {
-      setLoading(false);
-    }
-  };
+ 
 
   const formatDay = (dt: number) =>
     new Date(dt * 1000).toLocaleDateString("en-US", { weekday: "short" });
 
-  if (loading) {
+  if (isLoading) {
     return (
       <View className="flex-1 relative">
         <StatusBar barStyle="light-content" />
@@ -104,10 +86,10 @@ export default function WeatherDetailsPage({ city, onBack }: WeatherDetailsPageP
 
                 <View className="flex-col items-center justify-center gap-4">
                   <Text className="text-white text-center text-6xl font-bold">
-                    {Math.round(weather.temp)}°C
+                    {Math.round(weather?.temp)}°C
                   </Text>
                   <Text className="text-white text-center text-lg tracking-widest capitalize">
-                    {weather.weather?.[0]?.description}
+                    {weather?.weather?.[0]?.description}
                   </Text>
                 </View>
               </View>
@@ -120,7 +102,7 @@ export default function WeatherDetailsPage({ city, onBack }: WeatherDetailsPageP
                     <Text className="text-blue-400 text-2xl mb-2">💨</Text>
                     <Text className="text-white text-sm font-medium">Wind</Text>
                     <Text className="text-white text-lg font-bold">
-                      {weather.wind_speed} km/h
+                      {weather?.wind_speed} km/h
                     </Text>
                   </View>
 
@@ -234,7 +216,7 @@ export default function WeatherDetailsPage({ city, onBack }: WeatherDetailsPageP
             <View className="flex-1 items-center justify-center">
               <Text className="text-white text-xl">Failed to load weather data</Text>
               <TouchableOpacity
-                onPress={fetchWeatherDetails}
+                onPress={() => refetch?.()}
                 className="bg-cyan-500 px-6 py-3 rounded-2xl mt-4"
               >
                 <Text className="text-white font-bold">Try Again</Text>

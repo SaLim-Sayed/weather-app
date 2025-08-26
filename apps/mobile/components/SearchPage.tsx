@@ -1,13 +1,21 @@
-import { FlatList, Image, StatusBar, Text, TextInput, TouchableOpacity, View } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
-import { MagnifyingGlassIcon, MapPinIcon } from "react-native-heroicons/outline";
-import { useEffect, useState } from 'react';
-import * as Location from "expo-location"; 
-import { useWeatherStore } from "@weather-app/core/src/stores/useWeatherStore";
+import { useState } from "react";
+import {
+  FlatList,
+  Image,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View
+} from "react-native";
+import {
+  MagnifyingGlassIcon,
+  MapPinIcon,
+} from "react-native-heroicons/outline";
+import { SafeAreaView } from "react-native-safe-area-context";
 
-const API_KEY = "5796abbde9106b7da4febfae8c44c232";
+import { useCitySearch } from "@weather-app/core";
 
-type City = {
+export type City = {
   id: number;
   name: string;
   sys?: { country?: string };
@@ -21,86 +29,21 @@ type SearchPageProps = {
 };
 
 export default function SearchPage({ onCitySelect }: SearchPageProps) {
-  const [showSearch, setShowSearch] = useState(false);
-  const [query, setQuery] = useState("");
-  const [cities, setCities] = useState<City[]>([]);
-  const [loading, setLoading] = useState(false);
-
-  const setLatestSearch = useWeatherStore((state) => state.setLatestSearch);
-   const latestSearch = useWeatherStore((state) => state.latestSearch);
+  const {
+    query,
+    setQuery,
+    debouncedQuery,
+    cities,
+    isCityLoading,
+    isCityFetching,
+    isLocationLoading,
+    latestSearch,
+    handleCitySelect,
+    handleCurrentLocation,
+  } = useCitySearch(onCitySelect);
   
- 
-  useEffect(() => {
-    if (query.length < 2) {
-      setCities([]);
-      return;
-    }
-
-    const fetchCities = async () => {
-      setLoading(true);
-      try {
-        const res = await fetch(
-          `https://api.openweathermap.org/data/2.5/find?q=${query}&appid=${API_KEY}&units=metric`
-        );
-        const data = await res.json();
-        if (data?.list) {
-          setCities(data.list);
-        } else {
-          setCities([]);
-        }
-      } catch (error) {
-        console.log("Error fetching cities:", error);
-        setCities([]);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    const debounceTimer = setTimeout(fetchCities, 300);
-    return () => clearTimeout(debounceTimer);
-  }, [query]);
-
-  const handleCitySelect = (city: City) => {
-    onCitySelect(city);
-    setLatestSearch(city); 
-    setShowSearch(false);
-    setQuery("");
-    setCities([]);
-  };
-
-  const handleCurrentLocation = async () => {
-    try {
-      let { status } = await Location.requestForegroundPermissionsAsync();
-      if (status !== "granted") {
-        alert("Permission to access location was denied");
-        return;
-      }
-
-      const loc = await Location.getCurrentPositionAsync({});
-      const { latitude, longitude } = loc.coords;
-
-      const res = await fetch(
-        `https://api.openweathermap.org/data/2.5/weather?lat=${latitude}&lon=${longitude}&appid=${API_KEY}&units=metric`
-      );
-      const data = await res.json();
-
-      if (data) {
-        const city: City = {
-          id: data.id,
-          name: data.name,
-          sys: { country: data.sys?.country },
-          coord: { lat: data.coord.lat, lon: data.coord.lon },
-          main: data.main,
-          weather: data.weather,
-        };
-        handleCitySelect(city);
-      }
-    } catch (err) {
-      console.log("Error getting location:", err);
-    }
-  };
-
-  const CityCard = ({ city }: { city: City }) => (
+  const [showSearch, setShowSearch] = useState(false);
+   const CityCard = ({ city }: { city: City }) => (
     <TouchableOpacity
       onPress={() => handleCitySelect(city)}
       className="bg-white/10 backdrop-blur-sm rounded-2xl p-4 mb-3 border border-white/20"
@@ -141,12 +84,12 @@ export default function SearchPage({ onCitySelect }: SearchPageProps) {
 
   return (
     <View className="flex-1 relative">
-      <StatusBar barStyle="light-content" />
       <Image
         blurRadius={1}
         source={require("@repo/assets/images/background.png")}
         className="w-full h-full absolute flex-1 z-0"
       />
+
       <SafeAreaView className="flex-1 z-10">
         {/* Header */}
         <View className="mx-4 mt-4 mb-6">
@@ -185,7 +128,6 @@ export default function SearchPage({ onCitySelect }: SearchPageProps) {
             </TouchableOpacity>
           </View>
 
-          {/* Location Button */}
           <TouchableOpacity
             onPress={handleCurrentLocation}
             className="h-14 w-14 rounded-full items-center justify-center bg-green-500/30"
@@ -196,13 +138,13 @@ export default function SearchPage({ onCitySelect }: SearchPageProps) {
 
         {/* Results */}
         <View className="flex-1 mx-4">
-          {loading && (
+          {(isCityLoading || isCityFetching || isLocationLoading) && (
             <View className="items-center py-8">
-              <Text className="text-white text-lg">Searching...</Text>
+              <Text className="text-white text-lg">Loading...</Text>
             </View>
           )}
 
-          {!loading && query.length >= 2 && cities.length === 0 && (
+          {debouncedQuery.length >= 2 && cities.length === 0 && !isCityLoading && (
             <View className="items-center py-8">
               <Text className="text-gray-300 text-lg">No cities found</Text>
               <Text className="text-gray-400 text-sm mt-2">
@@ -211,22 +153,21 @@ export default function SearchPage({ onCitySelect }: SearchPageProps) {
             </View>
           )}
 
-          {cities.length > 0 && (
-            <FlatList
-              data={cities}
-              keyExtractor={(item) => item.id.toString()}
-              renderItem={({ item }) => <CityCard city={item} />}
-              showsVerticalScrollIndicator={false}
-              contentContainerStyle={{ paddingBottom: 20 }}
-            />
-          )}  {latestSearch && (
-          <View className="mx-4 mb-4">
-            <Text className="text-gray-300 mb-2">Last searched:</Text>
-            <CityCard city={latestSearch} />
-          </View>
-        )}
+          <FlatList
+            data={cities}
+            keyExtractor={(item) => item.id.toString()}
+            renderItem={({ item }) => <CityCard city={item} />}
+            showsVerticalScrollIndicator={false}
+            contentContainerStyle={{ paddingBottom: 20 }}
+          />
+
+          {latestSearch && (
+            <View className="mx-4 mb-4">
+              <Text className="text-gray-300 mb-2">Last searched:</Text>
+              <CityCard city={latestSearch} />
+            </View>
+          )}
         </View>
-      
       </SafeAreaView>
     </View>
   );
