@@ -178,15 +178,15 @@ export default function WeatherDetailsPage({ city, onBack }: WeatherDetailsPageP
                 </View>
               </View>
 
-              {/* 7-Day Forecast */}
+              {/* 5-Day Forecast */}
               {daily.length > 0 && (
                 <View className="mx-4 mb-6">
                   <View className="flex-row items-center gap-4 mb-4">
                     <CalendarDaysIcon size={20} color="white" />
-                    <Text className="text-white text-xl font-bold">7-Day Forecast</Text>
+                    <Text className="text-white text-xl font-bold">5-Day Forecast</Text>
                   </View>
                   <FlatList
-                    data={daily}
+                    data={daily.slice(0, 5)}
                     horizontal
                     keyExtractor={(item, index) => index.toString()}
                     showsHorizontalScrollIndicator={false}

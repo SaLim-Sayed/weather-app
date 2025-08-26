@@ -41,7 +41,7 @@ export default function WeatherMapScreen() {
 
   if (loading) {
     return (
-      <View style={styles.center}>
+      <View className="flex-1 items-center justify-center">
         <ActivityIndicator size="large" />
         <Text>Loading...</Text>
       </View>
@@ -50,7 +50,7 @@ export default function WeatherMapScreen() {
 
   if (errorMsg) {
     return (
-      <View style={styles.center}>
+      <View   className="flex-1 items-center justify-center">
         <Text>{errorMsg}</Text>
       </View>
     );
@@ -79,10 +79,10 @@ export default function WeatherMapScreen() {
       )}
 
       {weather && (
-        <View style={styles.weatherBox}>
-          <Text style={styles.title}>Current: {weather.current.temp}°C</Text>
-          <Text>Condition: {weather.current.weather[0].description}</Text>
-          <Text style={styles.subtitle}>Next Days:</Text>
+        <View  className="absolute bottom-20 left-20 right-20 bg-white/10 backdrop-blur-sm rounded-2xl p-4 border border-white/20">
+          <Text className="text-white text-lg font-bold">Current: {weather.current.temp}°C</Text>
+          <Text className="text-white text-lg font-bold">Condition: {weather.current.weather[0].description}</Text>
+          <Text className="text-white text-lg font-bold">Next Days:</Text>
           {weather.daily.slice(0, 5).map((day: any, idx: number) => (
             <Text key={idx}>
               {new Date(day.dt * 1000).toDateString()} - {day.temp.day}°C
@@ -93,18 +93,4 @@ export default function WeatherMapScreen() {
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  center: { flex: 1, justifyContent: "center", alignItems: "center" },
-  weatherBox: {
-    position: "absolute",
-    bottom: 20,
-    left: 20,
-    right: 20,
-    backgroundColor: "rgba(255,255,255,0.9)",
-    padding: 12,
-    borderRadius: 10,
-  },
-  title: { fontWeight: "bold", fontSize: 16 },
-  subtitle: { marginTop: 8, fontWeight: "600" },
-});
+ 
