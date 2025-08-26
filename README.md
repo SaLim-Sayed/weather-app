@@ -1,58 +1,115 @@
-# Turborepo Tailwind CSS starter
+# 🌦️ Weather App
 
-This Turborepo starter is maintained by the Turborepo core team.
+![React](https://img.shields.io/badge/React-19.0.0-blue)
+![Expo](https://img.shields.io/badge/Expo-51.0.0-black)
+![Vite](https://img.shields.io/badge/Vite-6.0.3-purple)
+![TypeScript](https://img.shields.io/badge/TypeScript-5.5-blue)
+![Zustand](https://img.shields.io/badge/Zustand-5.0.1-lightgrey)
+![React Query](https://img.shields.io/badge/TanStack_Query-5.55.4-orange)
+![TailwindCSS](https://img.shields.io/badge/TailwindCSS-3.4.0-06B6D4)
+![NativeWind](https://img.shields.io/badge/NativeWind-4.0.0-38BDF8)
+![shadcn/ui](https://img.shields.io/badge/shadcn/ui-Latest-FFF)
+![License: MIT](https://img.shields.io/badge/License-MIT-green)
 
-## Using this example
+A **cross-platform Weather Application** built inside a **monorepo** using **React (Vite Web)** and **Expo (React Native Mobile)**.  
+Featuring real-time weather data, smooth UI, modern design system, and robust state management.
 
-Run the following command:
+---
 
-```sh
-npx create-turbo@latest -e with-tailwind
-```
+## 📑 Table of Contents
 
-## What's inside?
+- [✨ Demo](#-demo)  
+- [📸 Preview](#-application-preview)  
+- [🚀 Features](#-features)  
+- [📦 Tech Stack](#-tech-stack)  
+- [📂 Project Structure](#-project-structure)  
+- [⚙️ Installation](#️-installation)  
+- [🛠️ Deployment](#️-deployment)  
+- [🤝 Contributing](#-contributing)  
+- [📄 License](#-license)  
 
-This Turborepo includes the following packages/apps:
+---
 
-### Apps and Packages
+## ✨ Demo
 
-- `docs`: a [Next.js](https://nextjs.org/) app with [Tailwind CSS](https://tailwindcss.com/)
-- `web`: another [Next.js](https://nextjs.org/) app with [Tailwind CSS](https://tailwindcss.com/)
-- `ui`: a stub React component library with [Tailwind CSS](https://tailwindcss.com/) shared by both `web` and `docs` applications
-- `@repo/eslint-config`: `eslint` configurations (includes `eslint-config-next` and `eslint-config-prettier`)
-- `@repo/typescript-config`: `tsconfig.json`s used throughout the monorepo
+[![Live Demo](https://img.shields.io/badge/Live_Demo-Access_Now-FF6B6B)](https://weather-app-web-peach.vercel.app/)
 
-Each package/app is 100% [TypeScript](https://www.typescriptlang.org/).
+---
 
-### Building packages/ui
+## 📸 Application Preview
 
-This example is set up to produce compiled styles for `ui` components into the `dist` directory. The component `.tsx` files are consumed by the Next.js apps directly using `transpilePackages` in `next.config.ts`. This was chosen for several reasons:
+| Web (Vite) | Mobile (Expo) |
+|------------|---------------|
+| ![Web Screenshot](./public/images/web-preview.png) | ![Mobile Screenshot](./public/images/mobile-preview.png) |
 
-- Make sharing one `tailwind.config.ts` to apps and packages as easy as possible.
-- Make package compilation simple by only depending on the Next.js Compiler and `tailwindcss`.
-- Ensure Tailwind classes do not overwrite each other. The `ui` package uses a `ui-` prefix for it's classes.
-- Maintain clear package export boundaries.
+---
 
-Another option is to consume `packages/ui` directly from source without building. If using this option, you will need to update the `tailwind.config.ts` in your apps to be aware of your package locations, so it can find all usages of the `tailwindcss` class names for CSS compilation.
+## 🚀 Features
 
-For example, in [tailwind.config.ts](packages/tailwind-config/tailwind.config.ts):
+- **Cross-Platform**: Web (React + Vite) + Mobile (React Native + Expo).
+- **Design System**: **shadcn/ui** for web + **NativeWind** for mobile.
+- **State Management**: Centralized store using **Zustand**.
+- **Data Layer**: Smart fetching & caching with **TanStack React Query**.
+- **Weather API Integration**: [OpenWeather API](https://openweathermap.org/).
+- **Offline Support**: Local persistence via **AsyncStorage** + custom MobileStorage abstraction.
+- **Location Support**: Automatic location detection with **expo-location**.
+- **Animations**: Smooth & delightful transitions (Framer Motion on web).
+- **Scalable Architecture**: Shared logic in `@weather-app/core`.
+- **Responsive UI**: TailwindCSS for web + NativeWind for native.
 
-```js
-  content: [
-    // app content
-    `src/**/*.{js,ts,jsx,tsx}`,
-    // include packages if not transpiling
-    "../../packages/ui/*.{js,ts,jsx,tsx}",
-  ],
-```
+---
 
-If you choose this strategy, you can remove the `tailwindcss` and `autoprefixer` dependencies from the `ui` package.
+## 📦 Tech Stack
 
-### Utilities
+- **Frameworks**: React 19, Expo 51, Vite 6  
+- **Styling**: TailwindCSS (Web), NativeWind (Mobile), shadcn/ui  
+- **State Management**: Zustand  
+- **Data Fetching**: TanStack React Query  
+- **Persistence**: AsyncStorage, MobileStorage (custom)  
+- **APIs**: OpenWeather API  
+- **Tooling**: TypeScript, ESLint, Turborepo  
 
-This Turborepo has some additional tools already setup for you:
+---
 
-- [Tailwind CSS](https://tailwindcss.com/) for styles
-- [TypeScript](https://www.typescriptlang.org/) for static type checking
-- [ESLint](https://eslint.org/) for code linting
-- [Prettier](https://prettier.io) for code formatting
+## 📂 Project Structure
+
+```bash
+weather-app/
+│── apps/
+│   ├── web/                  # React + Vite Web App
+│   ├── mobile/               # Expo React Native Mobile App
+│
+│── packages/
+│   ├── core/                 # Shared business logic (hooks, API clients, utils)
+│   ├── tailwind-config/      # Shared Tailwind CSS configuration
+│   ├── config/               # Shared configs (eslint, tsconfig, etc.)
+│
+│── turbo.json                # Turborepo configuration
+│── package.json              # Monorepo root
+│── README.md
+
+
+## 📦 Installation
+
+# Clone the repository
+git clone https://github.com/SaLim-Sayed/weather-app
+cd weather-app
+
+# Install dependencies
+npm install
+
+# Run Web (Vite)
+cd apps/web
+npm run dev
+
+# Run Mobile (Expo)
+cd apps/mobile
+npm run start
+
+🛠️ Deployment
+
+Web: Deployed on Vercel
+.
+
+Mobile: Run locally with Expo Go, or build standalone apps via EAS
+.

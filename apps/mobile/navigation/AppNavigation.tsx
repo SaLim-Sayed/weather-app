@@ -1,5 +1,6 @@
 import { NavigationContainer } from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
+import WeatherDetailsPage from "components/DetailPage";
 import HomeScreen from "screens/HomeScreen";
  
 
@@ -12,7 +13,7 @@ export default function AppNavigation() {
       <Stack.Navigator initialRouteName="home" screenOptions={{ headerShown: false }}>
 
         <Stack.Screen name="home" component={HomeScreen} /> 
- 
+        {/* <Stack.Screen name="details" component={WeatherDetailsPage} />  */}
       </Stack.Navigator>
     </NavigationContainer>
   );
