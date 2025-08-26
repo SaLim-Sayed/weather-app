@@ -1,7 +1,7 @@
 
 import { useEffect, useState } from "react";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { City } from "./useCitySearch";
+import type { City } from "./useCitySearch";
 import { MobileStorage } from "../utils/mobileStorage";
   
 const RECENT_SEARCHES_KEY = "recent_searches";
