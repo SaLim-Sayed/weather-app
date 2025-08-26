@@ -12,6 +12,7 @@ export * from './api/useApiQuery';
 export * from './hooks/useCitySearch';
 export * from './hooks/useWeatherDetails';
 export * from './hooks/useRecentSearches.web';
+export * from './hooks/useRecentSearches.mobile';
 export * from './utils/mobileStorage';
 export * from './constant/constant';
 

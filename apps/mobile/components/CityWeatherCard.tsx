@@ -12,7 +12,7 @@ export function CityWeather({ city }: CityWeatherProps) {
   const description = weather[0]?.description;
 
   return (
-    <View style={styles.container}>
+    <View className="items-center mx-4 mb-8">
       <WeatherCard
         title={`${name}, ${sys.country}`}
         value={`${Math.round(main.temp)}°C`}
@@ -20,20 +20,9 @@ export function CityWeather({ city }: CityWeatherProps) {
           uri: `https://openweathermap.org/img/wn/${weatherIcon}@4x.png`,
         }}
       />
-      <Text style={styles.desc}>{description}</Text>
+      <Text className="text-white text-center text-lg tracking-widest capitalize">{description}</Text>
     </View>
   );
 }
 
-const styles = StyleSheet.create({
-  container: {
-    alignItems: "center",
-    marginVertical: 10,
-  },
-  desc: {
-    fontSize: 16,
-    color: "#fff",
-    marginTop: -8,
-    textTransform: "capitalize",
-  },
-});
+ 

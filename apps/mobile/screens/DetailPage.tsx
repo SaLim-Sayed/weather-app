@@ -1,0 +1,58 @@
+import { useWeatherDetails } from "@weather-app/core";
+import { useEffect } from "react";
+import { Image, ScrollView, StatusBar, Text, View } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
+
+import Header from "../components/WeatherDetails/Header";
+import CurrentWeather from "../components/WeatherDetails/CurrentWeather";
+import WeatherStats from "../components/WeatherDetails/WeatherStats";
+import ForecastList from "../components/WeatherDetails/ForecastList";
+import LoadingView from "../components/WeatherDetails/LoadingView";
+import ErrorView from "../components/WeatherDetails/ErrorView";
+import { useNavigation, useRoute } from "@react-navigation/native";
+
+ 
+export default function WeatherDetailsPage() {
+   const navigation = useNavigation();
+    const { params } = useRoute<any>();
+    const city = params.city;
+     const { weather, daily, isLoading, refetch } = useWeatherDetails(params.city);
+  
+   
+    useEffect(() => {
+      refetch();
+    }, [params.city]);
+
+  useEffect(() => {
+    refetch();
+  }, [city]);
+
+  if (isLoading) return <LoadingView />;
+
+  return (
+    <View className="flex-1 relative">
+      <StatusBar barStyle="light-content" />
+      <Image
+        blurRadius={1}
+        source={require("@repo/assets/images/background.png")}
+        className="w-full h-full absolute flex-1 z-0"
+      />
+
+      <SafeAreaView className="flex-1 z-10">
+        <Header onBack={() => navigation.goBack()} />
+
+        <ScrollView>
+          {weather ? (
+            <>
+              <CurrentWeather weather={weather} />
+              <WeatherStats weather={weather} />
+              <ForecastList daily={daily} />
+            </>
+          ) : (
+            <ErrorView onRetry={refetch} />
+          )}
+        </ScrollView>
+      </SafeAreaView>
+    </View>
+  );
+}
