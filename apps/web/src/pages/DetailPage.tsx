@@ -1,13 +1,15 @@
 import { useWeatherDetails, type City } from '@weather-app/core';
 import { useEffect } from 'react';
-import { useParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import { Button } from '../components/ui/button';
 import { Skeleton } from '../components/ui/skeleton';
 import Forecast from '../shared-ui/Forecast';
 import WeatherHeader from '../shared-ui/WeatherHeader';
 import WeatherStats from '../shared-ui/WeatherStats';
+import { FiArrowLeft } from 'react-icons/fi';
 
 export default function DetailPage() {
+  const navigate = useNavigate();
   const { city: cityName, lat, lon, country } = useParams();
   const city = {
     name: cityName,
@@ -48,6 +50,9 @@ export default function DetailPage() {
 
   return (
     <div className="p-4 sm:p-6 md:p-8 lg:p-10 max-w-5xl mx-auto space-y-6">
+      <Button className='h-14 w-14 rounded-full fixed top-4 left-4 items-center justify-center bg-green-500/30' onClick={() => navigate(-1)}>
+        <FiArrowLeft />
+      </Button>
       <WeatherHeader weather={weather} />
       <WeatherStats weather={weather} />
       <Forecast daily={daily} />
