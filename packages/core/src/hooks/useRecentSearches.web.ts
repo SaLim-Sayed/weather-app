@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { City } from "@weather-app/core/src/hooks/useCitySearch";
+import type { City } from "@weather-app/core/src/hooks/useCitySearch";
 import {
   getFromLocalStorage,
   saveToLocalStorage,

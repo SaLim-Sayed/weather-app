@@ -1,4 +1,4 @@
-import { City } from "./useCitySearch";
+import type { City } from "./useCitySearch";
 import { useApiQuery } from "../api/useApiQuery";
 import { API_KEY } from "../constant/constant";
 

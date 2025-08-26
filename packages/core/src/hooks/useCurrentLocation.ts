@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useApiQuery } from "@weather-app/core/src/api/useApiQuery";
-import { City } from "@weather-app/core/src/hooks/useCitySearch";
+import type { City } from "@weather-app/core/src/hooks/useCitySearch";
 import { API_KEY } from "../constant/constant";
 
 export function useCurrentLocation(onSuccess: (city: City) => void) {
