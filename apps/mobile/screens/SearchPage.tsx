@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { FlatList, Image, Text, TouchableOpacity, View } from "react-native";
+import { ActivityIndicator, FlatList, Image, Text, TouchableOpacity, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import * as Location from "expo-location";
 import { API_KEY, useApiQuery, useCitySearch, useRecentMobileSearches } from "@weather-app/core";
@@ -80,7 +80,11 @@ export default function SearchPage() {
 
         <View className="flex-1 mx-4">
           {(isCityLoading || isCityFetching) && (
-            <Text className="text-white text-lg text-center py-8">Loading...</Text>
+            <View className="flex-row justify-center items-center py-8">
+              <Text className="text-white text-lg text-center flex-row justify-center items-center py-8">
+                Loading...</Text>
+              <ActivityIndicator size={"large"} color="#fff" />
+            </View>
           )}
 
           {debouncedQuery.length >= 2 && cities.length > 0 && (
