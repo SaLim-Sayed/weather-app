@@ -7,7 +7,7 @@ export * from './stores/useWeatherStore';
 export * from './hooks/useCurrentLocation';
 
 export * from './hooks/useRecentSearches.web';
-export * from './cn';
+export * from './utils/cn';
 export * from './api/useApiQuery';
 export * from './hooks/useCitySearch';
 export * from './hooks/useWeatherDetails';
