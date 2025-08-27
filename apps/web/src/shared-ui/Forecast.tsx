@@ -1,16 +1,17 @@
 import type { TDailyWeather } from '@weather-app/core';
-import { Card, CardContent, CardHeader, CardTitle } from '../components/ui/card';
+import { Card,  CardHeader, CardTitle } from '../components/ui/card';
+import { ScrollArea, ScrollBar } from '../components/ui/scroll-area';
 
 const Forecast = ({ daily }: { daily: TDailyWeather[] }) => {
     return (
-        <Card className="shadow-md bg-white/0">
+        <Card className="shadow-md border-0 bg-white/0">
             <CardHeader>
                 <CardTitle className="text-lg sm:text-xl md:text-2xl font-bold text-white text-center md:text-left">
                     5-Day Forecast
                 </CardTitle>
             </CardHeader>
-            <CardContent>
-                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-4">
+            <ScrollArea className="w-80 sm:w-full overflow-hidden rounded-md   whitespace-nowrap">
+                <div className="flex w-max space-x-4 p-4">
                     {daily.slice(0, 5).map((item: TDailyWeather, index: number) => (
                         <div key={index} className="p-4 bg-white/10 rounded-lg text-center">
                             <p className="font-semibold text-white">
@@ -27,7 +28,9 @@ const Forecast = ({ daily }: { daily: TDailyWeather[] }) => {
                         </div>
                     ))}
                 </div>
-            </CardContent>
+                <ScrollBar orientation="horizontal" />
+
+            </ScrollArea>
         </Card>
     );
 };
