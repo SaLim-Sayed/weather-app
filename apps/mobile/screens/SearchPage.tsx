@@ -67,7 +67,7 @@ export default function SearchPage() {
 
   return (
     <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
-      <View className="flex-1 relative">
+      <View style={{ direction: "ltr" }} className="flex-1 relative">
         <Image
           blurRadius={1}
           source={require("@repo/assets/images/background.png")}

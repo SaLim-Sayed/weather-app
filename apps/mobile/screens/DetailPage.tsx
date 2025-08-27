@@ -30,7 +30,7 @@ export default function WeatherDetailsPage() {
 
 
   return (
-    <View className="flex-1 relative">
+    <View style={{ direction: "ltr" }} className="flex-1 relative ">
       <StatusBar barStyle="light-content" />
       <Image
         blurRadius={1}
