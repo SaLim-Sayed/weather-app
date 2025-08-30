@@ -1,4 +1,4 @@
-import type { City } from '@weather-app/core/src/hooks/useCitySearch';
+import type { City } from '@weather-app/core/src/hooks/useAppCitySearch';
 import { FiMapPin } from "react-icons/fi";
 import {
     Card,

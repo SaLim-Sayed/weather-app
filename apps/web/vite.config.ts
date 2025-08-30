@@ -1,13 +1,17 @@
-import path from "path";
-import { defineConfig } from "vite";
-import react from "@vitejs/plugin-react";
+import { defineConfig } from 'vite';
+import react from '@vitejs/plugin-react';
 
 export default defineConfig({
   plugins: [react()],
+  optimizeDeps: {
+    exclude: ['react-native'],  
+  },
+  define: {
+    global: 'globalThis',  
+  },
   resolve: {
     alias: {
-      "@": path.resolve(__dirname, "src"),
-      "@lib": path.resolve(__dirname, "src/lib"),
+      'react-native': 'react-native-web',  
     },
   },
 });

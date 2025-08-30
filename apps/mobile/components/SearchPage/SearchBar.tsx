@@ -8,6 +8,7 @@ interface Props {
   showSearch: boolean;
   setShowSearch: (val: boolean) => void;
   onCurrentLocation: () => void;
+  isLocationLoading: boolean;
 }
 
 const SearchBar: FC<Props> = ({
@@ -16,6 +17,7 @@ const SearchBar: FC<Props> = ({
   showSearch,
   setShowSearch,
   onCurrentLocation,
+  isLocationLoading,
 }) => (
   <View className="mx-4 relative mb-6 flex-row gap-4 items-center space-x-2">
     <View

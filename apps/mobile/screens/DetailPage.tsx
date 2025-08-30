@@ -1,16 +1,15 @@
 import { useWeatherDetails } from "@weather-app/core";
 import { useEffect } from "react";
-import { Image, ScrollView, StatusBar, Text, View } from "react-native";
+import { Image, ScrollView, StatusBar, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
-import Header from "../components/WeatherDetails/Header";
-import CurrentWeather from "../components/WeatherDetails/CurrentWeather";
-import WeatherStats from "../components/WeatherDetails/WeatherStats";
-import ForecastList from "../components/WeatherDetails/ForecastList";
-import LoadingView from "../components/WeatherDetails/LoadingView";
-import ErrorView from "../components/WeatherDetails/ErrorView";
 import { useNavigation, useRoute } from "@react-navigation/native";
 import LoaderBoundary from "components/LoaderBoundary";
+import CurrentWeather from "../components/WeatherDetails/CurrentWeather";
+import ErrorView from "../components/WeatherDetails/ErrorView";
+import ForecastList from "../components/WeatherDetails/ForecastList";
+import Header from "../components/WeatherDetails/Header";
+import WeatherStats from "../components/WeatherDetails/WeatherStats";
 
 
 export default function WeatherDetailsPage() {

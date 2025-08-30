@@ -3,14 +3,21 @@
   "compilerOptions": {
     "baseUrl": ".",
     "paths": {
-      "@/*": ["src/*"],
-      "@lib/*": ["lib/*"]
-
+      "expo-location": ["../../packages/core/src/types/expo-location.d.ts"],
+      "@/*": [
+        "src/*"
+      ],
+      "@lib/*": [
+        "lib/*"
+      ]
     }
-    },
-  
+  },
   "references": [
-    { "path": "./tsconfig.app.json" },
-    { "path": "./tsconfig.node.json" }
-  ]
-}
+    {
+      "path": "./tsconfig.app.json"
+    },
+    {
+      "path": "./tsconfig.node.json"
+    }
+  ],
+ }

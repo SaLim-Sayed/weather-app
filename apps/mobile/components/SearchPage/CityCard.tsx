@@ -1,12 +1,11 @@
 import { FC } from "react";
-import { View, Text, TouchableOpacity, Image } from "react-native";
-import { MapPinIcon, TrashIcon } from "react-native-heroicons/outline";
-import { City } from "screens/SearchPage";
- 
+import { Image, Text, TouchableOpacity, View } from "react-native";
+import { MapPinIcon } from "react-native-heroicons/outline";
+  
 interface Props {
-  city: City;
+  city: any;
   showDelete?: boolean;
-  onSelect: (city: City) => void;
+  onSelect: (city: any) => void;
 }
 
 const CityCard: FC<Props> = ({ city, showDelete, onSelect }) => (
